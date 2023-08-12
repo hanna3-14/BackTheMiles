@@ -29,18 +29,6 @@ func sendMessage(rw http.ResponseWriter, r *http.Request, data models.ApiRespons
 	}
 }
 
-func PublicApiHandler(rw http.ResponseWriter, r *http.Request) {
-	sendMessage(rw, r, messages.PublicMessage())
-}
-
-func ProtectedApiHandler(rw http.ResponseWriter, r *http.Request) {
-	sendMessage(rw, r, messages.ProtectedMessage())
-}
-
-func AdminApiHandler(rw http.ResponseWriter, r *http.Request) {
-	sendMessage(rw, r, messages.AdminMessage())
-}
-
 func ResultsApiHandler(rw http.ResponseWriter, r *http.Request) {
 	sendMessage(rw, r, messages.ResultsMessage())
 }
