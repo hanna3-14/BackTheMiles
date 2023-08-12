@@ -41,6 +41,10 @@ func AdminApiHandler(rw http.ResponseWriter, r *http.Request) {
 	sendMessage(rw, r, messages.AdminMessage())
 }
 
+func ResultsApiHandler(rw http.ResponseWriter, r *http.Request) {
+	sendMessage(rw, r, messages.ResultsMessage())
+}
+
 func HandleCacheControl(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		headers := rw.Header()

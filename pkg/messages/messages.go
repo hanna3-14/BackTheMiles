@@ -19,3 +19,9 @@ func AdminMessage() models.ApiResponse {
 		Text: "This is an admin message.",
 	}
 }
+
+func ResultsMessage() models.ApiResponse {
+	return models.ApiResponse{
+		Text: "These are the results.",
+	}
+}
