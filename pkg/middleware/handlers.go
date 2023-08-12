@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/hanna3-14/BackTheMiles/pkg/data"
 	"github.com/hanna3-14/BackTheMiles/pkg/helpers"
 	"github.com/hanna3-14/BackTheMiles/pkg/messages"
 	"github.com/hanna3-14/BackTheMiles/pkg/models"
@@ -29,8 +30,23 @@ func sendMessage(rw http.ResponseWriter, r *http.Request, data models.ApiRespons
 	}
 }
 
-func ResultsApiHandler(rw http.ResponseWriter, r *http.Request) {
-	sendMessage(rw, r, messages.ResultsMessage())
+func sendResultsData(rw http.ResponseWriter, r *http.Request, data models.Results) {
+	if r.Method == http.MethodGet {
+		err := helpers.WriteJSON(rw, http.StatusOK, data)
+		if err != nil {
+			ServerError(rw, err)
+		}
+	} else {
+		NotFoundHandler(rw, r)
+	}
+}
+
+func ResultsMessageHandler(w http.ResponseWriter, r *http.Request) {
+	sendMessage(w, r, messages.ResultsMessage())
+}
+
+func ResultsDataHandler(w http.ResponseWriter, r *http.Request) {
+	sendResultsData(w, r, data.ResultsData())
 }
 
 func HandleCacheControl(next http.Handler) http.Handler {
