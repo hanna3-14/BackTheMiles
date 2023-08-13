@@ -1,9 +1,5 @@
 package models
 
-type Results struct {
-	Results []Result `json:"results"`
-}
-
 type Result struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`

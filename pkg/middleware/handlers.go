@@ -30,7 +30,7 @@ func sendMessage(rw http.ResponseWriter, r *http.Request, data models.ApiRespons
 	}
 }
 
-func sendResultsData(rw http.ResponseWriter, r *http.Request, data models.Results) {
+func sendResultsData(rw http.ResponseWriter, r *http.Request, data []models.Result) {
 	if r.Method == http.MethodGet {
 		err := helpers.WriteJSON(rw, http.StatusOK, data)
 		if err != nil {
