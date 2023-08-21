@@ -6,7 +6,6 @@ import (
 
 	"github.com/hanna3-14/BackTheMiles/pkg/data"
 	"github.com/hanna3-14/BackTheMiles/pkg/helpers"
-	"github.com/hanna3-14/BackTheMiles/pkg/messages"
 	"github.com/hanna3-14/BackTheMiles/pkg/models"
 )
 
@@ -19,17 +18,6 @@ type ErrorMessage struct {
 	Message string `json:"message"`
 }
 
-func sendMessage(rw http.ResponseWriter, r *http.Request, data models.ApiResponse) {
-	if r.Method == http.MethodGet {
-		err := helpers.WriteJSON(rw, http.StatusOK, data)
-		if err != nil {
-			ServerError(rw, err)
-		}
-	} else {
-		NotFoundHandler(rw, r)
-	}
-}
-
 func sendResultsData(rw http.ResponseWriter, r *http.Request, data []models.Result) {
 	if r.Method == http.MethodGet {
 		err := helpers.WriteJSON(rw, http.StatusOK, data)
@@ -39,10 +27,6 @@ func sendResultsData(rw http.ResponseWriter, r *http.Request, data []models.Resu
 	} else {
 		NotFoundHandler(rw, r)
 	}
-}
-
-func ResultsMessageHandler(w http.ResponseWriter, r *http.Request) {
-	sendMessage(w, r, messages.ResultsMessage())
 }
 
 func ResultsDataHandler(w http.ResponseWriter, r *http.Request) {
