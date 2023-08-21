@@ -13,6 +13,7 @@ func Router(audience, domain string) http.Handler {
 	router.HandleFunc("/", middleware.NotFoundHandler)
 	router.Handle("/api/messages/results", middleware.ValidateJWT(audience, domain)(http.HandlerFunc(middleware.ResultsMessageHandler)))
 	router.Handle("/api/data/results", middleware.ValidateJWT(audience, domain)(http.HandlerFunc(middleware.ResultsDataHandler)))
+	router.Handle("/api/data/goals", middleware.ValidateJWT(audience, domain)(http.HandlerFunc(middleware.GoalsDataHandler)))
 
 	return middleware.HandleCacheControl(router)
 }

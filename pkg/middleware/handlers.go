@@ -49,6 +49,21 @@ func ResultsDataHandler(w http.ResponseWriter, r *http.Request) {
 	sendResultsData(w, r, data.ResultsData())
 }
 
+func sendGoalsData(w http.ResponseWriter, r *http.Request, data []models.Goal) {
+	if r.Method == http.MethodGet {
+		err := helpers.WriteJSON(w, http.StatusOK, data)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else {
+		NotFoundHandler(w, r)
+	}
+}
+
+func GoalsDataHandler(w http.ResponseWriter, r *http.Request) {
+	sendGoalsData(w, r, data.GoalsData())
+}
+
 func HandleCacheControl(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		headers := rw.Header()
