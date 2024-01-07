@@ -38,6 +38,29 @@ func GetResults() ([]models.Result, error) {
 	return results, nil
 }
 
+func GetResultById(id string) (models.Result, error) {
+
+	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
+
+	db, err := sql.Open("sqlite3", path+file)
+	if err != nil {
+		return models.Result{}, err
+	}
+
+	stmt, err := db.Prepare("SELECT rowid, name, distance, time, place FROM results WHERE rowid = ?")
+	if err != nil {
+		return models.Result{}, err
+	}
+
+	var result models.Result
+	err = stmt.QueryRow(id).Scan(&result.ID, &result.Name, &result.Distance, &result.Time, &result.Place)
+	if err != nil {
+		return models.Result{}, err
+	}
+
+	return result, nil
+}
+
 func PostResult(result models.Result) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")

@@ -51,7 +51,17 @@ func ResultsDataHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ResultHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodDelete {
+	if r.Method == http.MethodGet {
+		id := mux.Vars(r)["id"]
+		result, err := data.GetResultById(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = helpers.WriteJSON(w, http.StatusOK, result)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodDelete {
 		id := mux.Vars(r)["id"]
 		err := data.DeleteResultById(id)
 		if err != nil {
