@@ -15,6 +15,7 @@ primary_region = "ams"
   AUTH0_DOMAIN = "leapfrog.eu.auth0.com"
   CLIENT_ORIGIN_URL = "https://capture-the-miles.fly.dev"
   PORT = "8080"
+  PATH_TO_VOLUME = "/volume"
 
 [mounts]
   source = "database"

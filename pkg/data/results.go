@@ -5,10 +5,11 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
+	"github.com/hanna3-14/BackTheMiles/pkg/helpers"
 	"github.com/hanna3-14/BackTheMiles/pkg/models"
 )
 
-const file string = "./volume/results.db"
+const file = "/results.db"
 
 func ResultsData() []models.Result {
 	return []models.Result{
@@ -45,7 +46,9 @@ func ResultsData() []models.Result {
 
 func PostResult(result models.Result) error {
 
-	db, err := sql.Open("sqlite3", file)
+	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
+
+	db, err := sql.Open("sqlite3", path+file)
 	if err != nil {
 		return err
 	}
