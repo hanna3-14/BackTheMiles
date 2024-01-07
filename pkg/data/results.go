@@ -103,12 +103,36 @@ func PatchResult(id string, modifiedResult models.Result) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE results SET name = ?, distance = ?, time = ?, place = ? WHERE rowid = ?")
+	stmt, err := db.Prepare("SELECT rowid, name, distance, time, place FROM results WHERE rowid = ?")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(modifiedResult.Name, modifiedResult.Distance, modifiedResult.Time, modifiedResult.Place, modifiedResult.ID)
+	var result models.Result
+	err = stmt.QueryRow(id).Scan(&result.ID, &result.Name, &result.Distance, &result.Time, &result.Place)
+	if err != nil {
+		return err
+	}
+
+	stmt, err = db.Prepare("UPDATE goals SET name = ?, distance = ?, time = ?, place = ? WHERE rowid = ?")
+	if err != nil {
+		return err
+	}
+
+	if len(modifiedResult.Name) == 0 {
+		modifiedResult.Name = result.Name
+	}
+	if len(modifiedResult.Distance) == 0 {
+		modifiedResult.Distance = result.Distance
+	}
+	if len(modifiedResult.Time) == 0 {
+		modifiedResult.Time = result.Time
+	}
+	if modifiedResult.Place == 0 {
+		modifiedResult.Place = result.Place
+	}
+
+	_, err = stmt.Exec(result.Name, result.Distance, result.Time, result.Place, result.ID)
 	if err != nil {
 		return err
 	}

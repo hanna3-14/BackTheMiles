@@ -99,9 +99,27 @@ func PatchGoal(id string, modifiedGoal models.Goal) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE goals SET distance = ?, time = ? WHERE rowid = ?")
+	stmt, err := db.Prepare("SELECT rowid, distance, time FROM goals WHERE rowid = ?")
 	if err != nil {
 		return err
+	}
+
+	var goal models.Goal
+	err = stmt.QueryRow(id).Scan(&goal.ID, &goal.Distance, &goal.Time)
+	if err != nil {
+		return err
+	}
+
+	stmt, err = db.Prepare("UPDATE goals SET distance = ?, time = ? WHERE rowid = ?")
+	if err != nil {
+		return err
+	}
+
+	if len(modifiedGoal.Distance) == 0 {
+		modifiedGoal.Distance = goal.Distance
+	}
+	if len(modifiedGoal.Time) == 0 {
+		modifiedGoal.Time = goal.Time
 	}
 
 	_, err = stmt.Exec(modifiedGoal.Distance, modifiedGoal.Time, modifiedGoal.ID)
