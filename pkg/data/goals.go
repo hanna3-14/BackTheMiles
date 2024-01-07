@@ -17,6 +17,7 @@ func GetGoals() ([]models.Goal, error) {
 	if err != nil {
 		return []models.Goal{}, err
 	}
+	defer db.Close()
 
 	var goals []models.Goal
 	response, err := db.Query("SELECT rowid, distance, time FROM goals")
@@ -44,6 +45,7 @@ func GetGoalById(id string) (models.Goal, error) {
 	if err != nil {
 		return models.Goal{}, err
 	}
+	defer db.Close()
 
 	stmt, err := db.Prepare("SELECT rowid, distance, time FROM goals WHERE rowid = ?")
 	if err != nil {
@@ -67,6 +69,7 @@ func PostGoal(goal models.Goal) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	const create string = `
 	CREATE TABLE IF NOT EXISTS goals (
@@ -98,6 +101,7 @@ func PatchGoal(id string, modifiedGoal models.Goal) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	stmt, err := db.Prepare("SELECT rowid, distance, time FROM goals WHERE rowid = ?")
 	if err != nil {
@@ -138,6 +142,7 @@ func DeleteGoal(id string) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	stmt, err := db.Prepare("DELETE FROM goals WHERE rowid = ?")
 	if err != nil {

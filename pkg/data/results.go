@@ -19,6 +19,7 @@ func GetResults() ([]models.Result, error) {
 	if err != nil {
 		return []models.Result{}, err
 	}
+	defer db.Close()
 
 	var results []models.Result
 	response, err := db.Query("SELECT rowid, name, distance, time, place FROM results")
@@ -46,6 +47,7 @@ func GetResultById(id string) (models.Result, error) {
 	if err != nil {
 		return models.Result{}, err
 	}
+	defer db.Close()
 
 	stmt, err := db.Prepare("SELECT rowid, name, distance, time, place FROM results WHERE rowid = ?")
 	if err != nil {
@@ -69,6 +71,7 @@ func PostResult(result models.Result) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	const create string = `
 	CREATE TABLE IF NOT EXISTS results (
@@ -102,6 +105,7 @@ func PatchResult(id string, modifiedResult models.Result) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	stmt, err := db.Prepare("SELECT rowid, name, distance, time, place FROM results WHERE rowid = ?")
 	if err != nil {
@@ -148,6 +152,7 @@ func DeleteResult(id string) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	stmt, err := db.Prepare("DELETE FROM results WHERE rowid = ?")
 	if err != nil {
