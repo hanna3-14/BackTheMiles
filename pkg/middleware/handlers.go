@@ -21,9 +21,12 @@ type ErrorMessage struct {
 }
 
 func ResultsDataHandler(w http.ResponseWriter, r *http.Request) {
-	results := data.ResultsData()
 	if r.Method == http.MethodGet {
-		err := helpers.WriteJSON(w, http.StatusOK, results)
+		results, err := data.GetResults()
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = helpers.WriteJSON(w, http.StatusOK, results)
 		if err != nil {
 			ServerError(w, err)
 		}

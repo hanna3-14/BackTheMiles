@@ -11,37 +11,31 @@ import (
 
 const file = "/results.db"
 
-func ResultsData() []models.Result {
-	return []models.Result{
-		{
-			ID:       1,
-			Name:     "Baden-Marathon",
-			Distance: "HM",
-			Time:     "02:21:40",
-			Place:    2336,
-		},
-		{
-			ID:       2,
-			Name:     "Schwarzwald-Marathon",
-			Distance: "HM",
-			Time:     "02:09:45",
-			Place:    535,
-		},
-		{
-			ID:       3,
-			Name:     "Bienwald-Marathon",
-			Distance: "HM",
-			Time:     "02:09:14",
-			Place:    928,
-		},
-		{
-			ID:       4,
-			Name:     "Freiburg-Marathon",
-			Distance: "M",
-			Time:     "05:29:09",
-			Place:    916,
-		},
+func GetResults() ([]models.Result, error) {
+
+	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
+
+	db, err := sql.Open("sqlite3", path+file)
+	if err != nil {
+		return []models.Result{}, err
 	}
+
+	var results []models.Result
+	response, err := db.Query("SELECT rowid, name, distance, time, place FROM results")
+	if err != nil {
+		return []models.Result{}, err
+	}
+
+	for response.Next() {
+		var result models.Result
+		err = response.Scan(&result.ID, &result.Name, &result.Distance, &result.Time, &result.Place)
+		if err != nil {
+			return []models.Result{}, err
+		}
+		results = append(results, result)
+	}
+
+	return results, nil
 }
 
 func PostResult(result models.Result) error {
