@@ -70,3 +70,25 @@ func PostResult(result models.Result) error {
 
 	return nil
 }
+
+func DeleteResultById(id string) error {
+
+	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
+
+	db, err := sql.Open("sqlite3", path+file)
+	if err != nil {
+		return err
+	}
+
+	stmt, err := db.Prepare("DELETE FROM results WHERE rowid = ?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

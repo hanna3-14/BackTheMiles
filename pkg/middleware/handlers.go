@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/hanna3-14/BackTheMiles/pkg/data"
 	"github.com/hanna3-14/BackTheMiles/pkg/helpers"
 	"github.com/hanna3-14/BackTheMiles/pkg/models"
@@ -46,6 +47,16 @@ func ResultsDataHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		NotFoundHandler(w, r)
+	}
+}
+
+func ResultHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodDelete {
+		id := mux.Vars(r)["id"]
+		err := data.DeleteResultById(id)
+		if err != nil {
+			ServerError(w, err)
+		}
 	}
 }
 
