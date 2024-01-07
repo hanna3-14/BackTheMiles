@@ -14,4 +14,7 @@ require (
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 )
 
-require github.com/pkg/errors v0.9.1 // indirect
+require (
+	github.com/mattn/go-sqlite3 v1.14.19 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+)

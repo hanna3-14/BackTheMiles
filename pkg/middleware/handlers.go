@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 
@@ -18,19 +20,30 @@ type ErrorMessage struct {
 	Message string `json:"message"`
 }
 
-func sendResultsData(rw http.ResponseWriter, r *http.Request, data []models.Result) {
+func ResultsDataHandler(w http.ResponseWriter, r *http.Request) {
+	results := data.ResultsData()
 	if r.Method == http.MethodGet {
-		err := helpers.WriteJSON(rw, http.StatusOK, data)
+		err := helpers.WriteJSON(w, http.StatusOK, results)
 		if err != nil {
-			ServerError(rw, err)
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodPost {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			ServerError(w, err)
+		}
+		var result models.Result
+		err = json.Unmarshal(body, &result)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = data.PostResult(result)
+		if err != nil {
+			ServerError(w, err)
 		}
 	} else {
-		NotFoundHandler(rw, r)
+		NotFoundHandler(w, r)
 	}
-}
-
-func ResultsDataHandler(w http.ResponseWriter, r *http.Request) {
-	sendResultsData(w, r, data.ResultsData())
 }
 
 func sendGoalsData(w http.ResponseWriter, r *http.Request, data []models.Goal) {
