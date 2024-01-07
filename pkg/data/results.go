@@ -2,7 +2,6 @@ package data
 
 import (
 	"database/sql"
-	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -10,13 +9,13 @@ import (
 	"github.com/hanna3-14/BackTheMiles/pkg/models"
 )
 
-const file = "/results.db"
+const resultsFile = "/results.db"
 
 func GetResults() ([]models.Result, error) {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+file)
+	db, err := sql.Open("sqlite3", path+resultsFile)
 	if err != nil {
 		return []models.Result{}, err
 	}
@@ -43,7 +42,7 @@ func GetResultById(id string) (models.Result, error) {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+file)
+	db, err := sql.Open("sqlite3", path+resultsFile)
 	if err != nil {
 		return models.Result{}, err
 	}
@@ -66,7 +65,7 @@ func PostResult(result models.Result) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+file)
+	db, err := sql.Open("sqlite3", path+resultsFile)
 	if err != nil {
 		return err
 	}
@@ -99,31 +98,29 @@ func PatchResult(id string, modifiedResult models.Result) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+file)
+	db, err := sql.Open("sqlite3", path+resultsFile)
 	if err != nil {
 		return err
 	}
-	fmt.Println(modifiedResult)
 
 	stmt, err := db.Prepare("UPDATE results SET name = ?, distance = ?, time = ?, place = ? WHERE rowid = ?")
 	if err != nil {
 		return err
 	}
 
-	lel, err := stmt.Exec(modifiedResult.Name, modifiedResult.Distance, modifiedResult.Time, modifiedResult.Place, modifiedResult.ID)
+	_, err = stmt.Exec(modifiedResult.Name, modifiedResult.Distance, modifiedResult.Time, modifiedResult.Place, modifiedResult.ID)
 	if err != nil {
 		return err
 	}
-	fmt.Println(lel)
 
 	return nil
 }
 
-func DeleteResultById(id string) error {
+func DeleteResult(id string) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+file)
+	db, err := sql.Open("sqlite3", path+resultsFile)
 	if err != nil {
 		return err
 	}

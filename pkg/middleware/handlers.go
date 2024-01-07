@@ -22,7 +22,7 @@ type ErrorMessage struct {
 	Message string `json:"message"`
 }
 
-func ResultsDataHandler(w http.ResponseWriter, r *http.Request) {
+func ResultsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		results, err := data.GetResults()
 		if err != nil {
@@ -83,16 +83,34 @@ func ResultHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	} else if r.Method == http.MethodDelete {
 		id := mux.Vars(r)["id"]
-		err := data.DeleteResultById(id)
+		err := data.DeleteResult(id)
 		if err != nil {
 			ServerError(w, err)
 		}
 	}
 }
 
-func sendGoalsData(w http.ResponseWriter, r *http.Request, data []models.Goal) {
+func GoalsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		err := helpers.WriteJSON(w, http.StatusOK, data)
+		goals, err := data.GetGoals()
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = helpers.WriteJSON(w, http.StatusOK, goals)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodPost {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			ServerError(w, err)
+		}
+		var goal models.Goal
+		err = json.Unmarshal(body, &goal)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = data.PostGoal(goal)
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -101,8 +119,43 @@ func sendGoalsData(w http.ResponseWriter, r *http.Request, data []models.Goal) {
 	}
 }
 
-func GoalsDataHandler(w http.ResponseWriter, r *http.Request) {
-	sendGoalsData(w, r, data.GoalsData())
+func GoalHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		id := mux.Vars(r)["id"]
+		goal, err := data.GetGoalById(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = helpers.WriteJSON(w, http.StatusOK, goal)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodPatch {
+		id := mux.Vars(r)["id"]
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			ServerError(w, err)
+		}
+		var goal models.Goal
+		err = json.Unmarshal(body, &goal)
+		if err != nil {
+			ServerError(w, err)
+		}
+		goal.ID, err = strconv.Atoi(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = data.PatchGoal(id, goal)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodDelete {
+		id := mux.Vars(r)["id"]
+		err := data.DeleteGoal(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+	}
 }
 
 func HandleCacheControl(next http.Handler) http.Handler {
