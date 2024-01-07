@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -90,6 +91,30 @@ func PostResult(result models.Result) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func PatchResult(id string, modifiedResult models.Result) error {
+
+	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
+
+	db, err := sql.Open("sqlite3", path+file)
+	if err != nil {
+		return err
+	}
+	fmt.Println(modifiedResult)
+
+	stmt, err := db.Prepare("UPDATE results SET name = ?, distance = ?, time = ?, place = ? WHERE rowid = ?")
+	if err != nil {
+		return err
+	}
+
+	lel, err := stmt.Exec(modifiedResult.Name, modifiedResult.Distance, modifiedResult.Time, modifiedResult.Place, modifiedResult.ID)
+	if err != nil {
+		return err
+	}
+	fmt.Println(lel)
 
 	return nil
 }

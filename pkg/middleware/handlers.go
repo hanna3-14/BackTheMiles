@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/hanna3-14/BackTheMiles/pkg/data"
@@ -58,6 +59,25 @@ func ResultHandler(w http.ResponseWriter, r *http.Request) {
 			ServerError(w, err)
 		}
 		err = helpers.WriteJSON(w, http.StatusOK, result)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodPatch {
+		id := mux.Vars(r)["id"]
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			ServerError(w, err)
+		}
+		var result models.Result
+		err = json.Unmarshal(body, &result)
+		if err != nil {
+			ServerError(w, err)
+		}
+		result.ID, err = strconv.Atoi(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = data.PatchResult(id, result)
 		if err != nil {
 			ServerError(w, err)
 		}
