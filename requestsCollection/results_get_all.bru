@@ -1,0 +1,15 @@
+meta {
+  name: results get all
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{backend_server_url}}/api/data/results
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: topsecret
+}

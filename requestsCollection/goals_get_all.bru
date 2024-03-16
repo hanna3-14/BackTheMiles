@@ -1,0 +1,15 @@
+meta {
+  name: goals get all
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{backend_server_url}}/api/data/goals
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: topsecret
+}

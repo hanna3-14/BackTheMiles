@@ -1,0 +1,22 @@
+meta {
+  name: goals post
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{backend_server_url}}/api/data/goals
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: topsecret
+}
+
+body:json {
+  {
+    "distance": "marathon",
+    "time": "4:59:59"
+  }
+}

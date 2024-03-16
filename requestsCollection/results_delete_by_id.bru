@@ -1,0 +1,15 @@
+meta {
+  name: results delete by id
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{backend_server_url}}/api/data/result/11
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: topsecret
+}

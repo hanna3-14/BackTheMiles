@@ -1,0 +1,15 @@
+meta {
+  name: goals delete by id
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{backend_server_url}}/api/data/goal/3
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: topsecret
+}

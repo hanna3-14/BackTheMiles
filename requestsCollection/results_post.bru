@@ -1,0 +1,32 @@
+meta {
+  name: results post
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{backend_server_url}}/api/data/results
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: topsecret
+}
+
+body:json {
+  {
+    "name": "Freiburg-Marathon",
+    "distance": "M",
+    "timeGross": "5:45:57",
+    "timeNet": "5:29:09",
+    "category": "W",
+    "agegroup": "W",
+    "placeTotal": 916,
+    "placeCategory": 164,
+    "placeAgegroup": 60,
+    "finisherTotal": 930,
+    "finisherCategory": 166,
+    "finisherAgegroup": 62
+  }
+}
