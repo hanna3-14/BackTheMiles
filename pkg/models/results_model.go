@@ -1,17 +1,13 @@
 package models
 
 type Result struct {
-	ID               int    `json:"id"`
-	Name             string `json:"name"`
-	Distance         string `json:"distance"`
-	TimeGross        string `json:"timeGross"`
-	TimeNet          string `json:"timeNet"`
-	Category         string `json:"category"`
-	Agegroup         string `json:"agegroup"`
-	PlaceTotal       int    `json:"placeTotal"`
-	PlaceCategory    int    `json:"placeCategory"`
-	PlaceAgegroup    int    `json:"placeAgegroup"`
-	FinisherTotal    int    `json:"finisherTotal"`
-	FinisherCategory int    `json:"finisherCategory"`
-	FinisherAgegroup int    `json:"finisherAgegroup"`
+	ID        int             `json:"id"`
+	Date      string          `json:"date"`
+	Distance  string          `json:"distance"`
+	TimeGross RaceTime        `json:"timeGross"`
+	TimeNet   RaceTime        `json:"timeNet"`
+	Category  string          `json:"category"`
+	Agegroup  string          `json:"agegroup"`
+	Place     CategoryNumbers `json:"place"`
+	Finisher  CategoryNumbers `json:"finisher"`
 }

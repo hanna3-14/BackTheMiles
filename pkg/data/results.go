@@ -24,10 +24,14 @@ func GetResults() ([]models.Result, error) {
 	const selectStmt string = `
 	SELECT
 	rowid,
-	name,
+	date,
 	distance,
-	time_gross,
-	time_net,
+	time_gross_hours,
+	time_gross_minutes,
+	time_gross_seconds,
+	time_net_hours,
+	time_net_minutes,
+	time_net_seconds,
 	category,
 	agegroup,
 	place_total,
@@ -47,7 +51,25 @@ func GetResults() ([]models.Result, error) {
 
 	for response.Next() {
 		var result models.Result
-		err = response.Scan(&result.ID, &result.Name, &result.Distance, &result.TimeGross, &result.TimeNet, &result.Category, &result.Agegroup, &result.PlaceTotal, &result.PlaceCategory, &result.PlaceAgegroup, &result.FinisherTotal, &result.FinisherCategory, &result.FinisherAgegroup)
+		err = response.Scan(
+			&result.ID,
+			&result.Date,
+			&result.Distance,
+			&result.TimeGross.Hours,
+			&result.TimeGross.Minutes,
+			&result.TimeGross.Seconds,
+			&result.TimeNet.Hours,
+			&result.TimeNet.Minutes,
+			&result.TimeNet.Seconds,
+			&result.Category,
+			&result.Agegroup,
+			&result.Place.Total,
+			&result.Place.Category,
+			&result.Place.Agegroup,
+			&result.Finisher.Total,
+			&result.Finisher.Category,
+			&result.Finisher.Agegroup,
+		)
 		if err != nil {
 			return []models.Result{}, err
 		}
@@ -70,10 +92,14 @@ func GetResultById(id string) (models.Result, error) {
 	const selectStmt string = `
 	SELECT
 	rowid,
-	name,
+	date,
 	distance,
-	time_gross,
-	time_net,
+	time_gross_hours,
+	time_gross_minutes,
+	time_gross_seconds,
+	time_net_hours,
+	time_net_minutes,
+	time_net_seconds,
 	category,
 	agegroup,
 	place_total,
@@ -91,7 +117,25 @@ func GetResultById(id string) (models.Result, error) {
 	}
 
 	var result models.Result
-	err = stmt.QueryRow(id).Scan(&result.ID, &result.Name, &result.Distance, &result.TimeGross, &result.TimeNet, &result.Category, &result.Agegroup, &result.PlaceTotal, &result.PlaceCategory, &result.PlaceAgegroup, &result.FinisherTotal, &result.FinisherCategory, &result.FinisherAgegroup)
+	err = stmt.QueryRow(id).Scan(
+		&result.ID,
+		&result.Date,
+		&result.Distance,
+		&result.TimeGross.Hours,
+		&result.TimeGross.Minutes,
+		&result.TimeGross.Seconds,
+		&result.TimeNet.Hours,
+		&result.TimeNet.Minutes,
+		&result.TimeNet.Seconds,
+		&result.Category,
+		&result.Agegroup,
+		&result.Place.Total,
+		&result.Place.Category,
+		&result.Place.Agegroup,
+		&result.Finisher.Total,
+		&result.Finisher.Category,
+		&result.Finisher.Agegroup,
+	)
 	if err != nil {
 		return models.Result{}, err
 	}
@@ -111,10 +155,14 @@ func PostResult(result models.Result) error {
 
 	const create string = `
 	CREATE TABLE IF NOT EXISTS results (
-		name TEXT,
+		date TEXT,
 		distance TEXT,
-		time_gross TEXT,
-		time_net TEXT,
+		time_gross_hours INT,
+		time_gross_minutes INT,
+		time_gross_seconds INT,
+		time_net_hours INT,
+		time_net_minutes INT,
+		time_net_seconds INT,
 		category TEXT,
 		agegroup TEXT,
 		place_total INT,
@@ -132,10 +180,14 @@ func PostResult(result models.Result) error {
 
 	const insert string = `
 	INSERT INTO results (
-		name,
+		date,
 		distance,
-		time_gross,
-		time_net,
+		time_gross_hours,
+		time_gross_minutes,
+		time_gross_seconds,
+		time_net_hours,
+		time_net_minutes,
+		time_net_seconds,
 		category,
 		agegroup,
 		place_total,
@@ -144,14 +196,31 @@ func PostResult(result models.Result) error {
 		finisher_total,
 		finisher_category,
 		finisher_agegroup
-	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 	`
 
 	stmt, err := db.Prepare(insert)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(result.Name, result.Distance, result.TimeGross, result.TimeNet, result.Category, result.Agegroup, result.PlaceTotal, result.PlaceCategory, result.PlaceAgegroup, result.FinisherTotal, result.FinisherCategory, result.FinisherAgegroup)
+	_, err = stmt.Exec(
+		result.Date,
+		result.Distance,
+		result.TimeGross.Hours,
+		result.TimeGross.Minutes,
+		result.TimeGross.Seconds,
+		result.TimeNet.Hours,
+		result.TimeNet.Minutes,
+		result.TimeNet.Seconds,
+		result.Category,
+		result.Agegroup,
+		result.Place.Total,
+		result.Place.Category,
+		result.Place.Agegroup,
+		result.Finisher.Total,
+		result.Finisher.Category,
+		result.Finisher.Agegroup,
+	)
 	if err != nil {
 		return err
 	}
@@ -172,10 +241,14 @@ func PatchResult(id string, modifiedResult models.Result) error {
 	const selectStmt string = `
 	SELECT
 	rowid,
-	name,
+	date,
 	distance,
-	time_gross,
-	time_net,
+	time_gross_hours,
+	time_gross_minutes,
+	time_gross_seconds,
+	time_net_hours,
+	time_net_minutes,
+	time_net_seconds,
 	category,
 	agegroup,
 	place_total,
@@ -193,17 +266,39 @@ func PatchResult(id string, modifiedResult models.Result) error {
 	}
 
 	var result models.Result
-	err = stmt.QueryRow(id).Scan(&result.ID, &result.Name, &result.Distance, &result.TimeGross, &result.TimeNet, &result.Category, &result.Agegroup, &result.PlaceTotal, &result.PlaceCategory, &result.PlaceAgegroup, &result.FinisherTotal, &result.FinisherCategory, &result.FinisherAgegroup)
+	err = stmt.QueryRow(id).Scan(
+		&result.ID,
+		&result.Date,
+		&result.Distance,
+		&result.TimeGross.Hours,
+		&result.TimeGross.Minutes,
+		&result.TimeGross.Seconds,
+		&result.TimeNet.Hours,
+		&result.TimeNet.Minutes,
+		&result.TimeNet.Seconds,
+		&result.Category,
+		&result.Agegroup,
+		&result.Place.Total,
+		&result.Place.Category,
+		&result.Place.Agegroup,
+		&result.Finisher.Total,
+		&result.Finisher.Category,
+		&result.Finisher.Agegroup,
+	)
 	if err != nil {
 		return err
 	}
 
 	const update string = `
 	UPDATE results SET
-	name = ?,
+	date = ?,
 	distance = ?,
-	time_gross = ?,
-	time_net = ?,
+	time_gross_hours = ?,
+	time_gross_minutes = ?,
+	time_gross_seconds = ?,
+	time_net_hours = ?,
+	time_net_minutes = ?,
+	time_net_seconds = ?,
 	category = ?,
 	agegroup = ?,
 	place_total = ?,
@@ -220,17 +315,29 @@ func PatchResult(id string, modifiedResult models.Result) error {
 		return err
 	}
 
-	if len(modifiedResult.Name) == 0 {
-		modifiedResult.Name = result.Name
+	if len(modifiedResult.Date) == 0 {
+		modifiedResult.Date = result.Date
 	}
 	if len(modifiedResult.Distance) == 0 {
 		modifiedResult.Distance = result.Distance
 	}
-	if len(modifiedResult.TimeGross) == 0 {
-		modifiedResult.TimeGross = result.TimeGross
+	if modifiedResult.TimeGross.Hours == 0 {
+		modifiedResult.TimeGross.Hours = result.TimeGross.Hours
 	}
-	if len(modifiedResult.TimeNet) == 0 {
-		modifiedResult.TimeNet = result.TimeNet
+	if modifiedResult.TimeGross.Minutes == 0 {
+		modifiedResult.TimeGross.Minutes = result.TimeGross.Minutes
+	}
+	if modifiedResult.TimeGross.Seconds == 0 {
+		modifiedResult.TimeGross.Seconds = result.TimeGross.Seconds
+	}
+	if modifiedResult.TimeNet.Hours == 0 {
+		modifiedResult.TimeNet.Hours = result.TimeNet.Hours
+	}
+	if modifiedResult.TimeNet.Minutes == 0 {
+		modifiedResult.TimeNet.Minutes = result.TimeNet.Minutes
+	}
+	if modifiedResult.TimeNet.Seconds == 0 {
+		modifiedResult.TimeNet.Seconds = result.TimeNet.Seconds
 	}
 	if len(modifiedResult.Category) == 0 {
 		modifiedResult.Category = result.Category
@@ -238,26 +345,44 @@ func PatchResult(id string, modifiedResult models.Result) error {
 	if len(modifiedResult.Agegroup) == 0 {
 		modifiedResult.Agegroup = result.Agegroup
 	}
-	if modifiedResult.PlaceTotal == 0 {
-		modifiedResult.PlaceTotal = result.PlaceTotal
+	if modifiedResult.Place.Total == 0 {
+		modifiedResult.Place.Total = result.Place.Total
 	}
-	if modifiedResult.PlaceCategory == 0 {
-		modifiedResult.PlaceCategory = result.PlaceCategory
+	if modifiedResult.Place.Category == 0 {
+		modifiedResult.Place.Category = result.Place.Category
 	}
-	if modifiedResult.PlaceAgegroup == 0 {
-		modifiedResult.PlaceAgegroup = result.PlaceAgegroup
+	if modifiedResult.Place.Agegroup == 0 {
+		modifiedResult.Place.Agegroup = result.Place.Agegroup
 	}
-	if modifiedResult.FinisherTotal == 0 {
-		modifiedResult.FinisherTotal = result.FinisherTotal
+	if modifiedResult.Finisher.Total == 0 {
+		modifiedResult.Finisher.Total = result.Finisher.Total
 	}
-	if modifiedResult.FinisherCategory == 0 {
-		modifiedResult.FinisherCategory = result.FinisherCategory
+	if modifiedResult.Finisher.Category == 0 {
+		modifiedResult.Finisher.Category = result.Finisher.Category
 	}
-	if modifiedResult.FinisherAgegroup == 0 {
-		modifiedResult.FinisherAgegroup = result.FinisherAgegroup
+	if modifiedResult.Finisher.Agegroup == 0 {
+		modifiedResult.Finisher.Agegroup = result.Finisher.Agegroup
 	}
 
-	_, err = stmt.Exec(modifiedResult.Name, modifiedResult.Distance, modifiedResult.TimeGross, modifiedResult.TimeNet, modifiedResult.Category, modifiedResult.Agegroup, modifiedResult.PlaceTotal, modifiedResult.PlaceCategory, modifiedResult.PlaceAgegroup, modifiedResult.FinisherTotal, modifiedResult.FinisherCategory, modifiedResult.FinisherAgegroup, modifiedResult.ID)
+	_, err = stmt.Exec(
+		modifiedResult.Date,
+		modifiedResult.Distance,
+		modifiedResult.TimeGross.Hours,
+		modifiedResult.TimeGross.Minutes,
+		modifiedResult.TimeGross.Seconds,
+		modifiedResult.TimeNet.Hours,
+		modifiedResult.TimeNet.Minutes,
+		modifiedResult.TimeNet.Seconds,
+		modifiedResult.Category,
+		modifiedResult.Agegroup,
+		modifiedResult.Place.Total,
+		modifiedResult.Place.Category,
+		modifiedResult.Place.Agegroup,
+		modifiedResult.Finisher.Total,
+		modifiedResult.Finisher.Category,
+		modifiedResult.Finisher.Agegroup,
+		modifiedResult.ID,
+	)
 	if err != nil {
 		return err
 	}
