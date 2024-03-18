@@ -1,0 +1,22 @@
+meta {
+  name: events post
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{backend_server_url}}/api/data/events
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+body:json {
+  {
+    "name": "Baden-Marathon",
+    "location": "Karlsruhe"
+  }
+}

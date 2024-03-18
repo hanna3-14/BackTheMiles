@@ -1,0 +1,15 @@
+meta {
+  name: events get all
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{backend_server_url}}/api/data/events
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
