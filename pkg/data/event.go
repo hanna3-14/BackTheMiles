@@ -19,30 +19,7 @@ func GetEvents() ([]models.Event, error) {
 	}
 	defer db.Close()
 
-	const selectEvents string = `
-	SELECT
-	rowid,
-	name,
-	location
-	FROM events
-	`
-
-	var events []models.Event
-	response, err := db.Query(selectEvents)
-	if err != nil {
-		return []models.Event{}, err
-	}
-
-	for response.Next() {
-		var event models.Event
-		err = response.Scan(&event.ID, &event.Name, &event.Location)
-		if err != nil {
-			return []models.Event{}, err
-		}
-		events = append(events, event)
-	}
-
-	return events, nil
+	return selectAllEventsFromDB(db)
 }
 
 func GetEventById(id string) (models.Event, error) {
@@ -55,26 +32,7 @@ func GetEventById(id string) (models.Event, error) {
 	}
 	defer db.Close()
 
-	const selectEvent string = `
-	SELECT
-	rowid,
-	name,
-	location,
-	FROM events WHERE rowid = ?
-	`
-
-	stmt, err := db.Prepare(selectEvent)
-	if err != nil {
-		return models.Event{}, err
-	}
-
-	var event models.Event
-	err = stmt.QueryRow(id).Scan(&event.ID, &event.Name, &event.Location)
-	if err != nil {
-		return models.Event{}, err
-	}
-
-	return event, nil
+	return selectEventByIdFromDB(db, id)
 }
 
 func PostEvent(event models.Event) error {
@@ -87,35 +45,12 @@ func PostEvent(event models.Event) error {
 	}
 	defer db.Close()
 
-	const createEvents string = `
-	CREATE TABLE IF NOT EXISTS events (
-	name TEXT,
-	location TEXT
-	);`
-
-	_, err = db.Exec(createEvents)
+	err = createEventsTable(db)
 	if err != nil {
 		return err
 	}
 
-	const insertEvent string = `
-	INSERT INTO events (
-		name,
-		location
-	) VALUES (?, ?)
-	`
-
-	stmt, err := db.Prepare(insertEvent)
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.Exec(event.Name, event.Location)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return insertEventIntoDB(db, event)
 }
 
 func PatchEvent(id string, modifiedEvent models.Event) error {
@@ -128,50 +63,12 @@ func PatchEvent(id string, modifiedEvent models.Event) error {
 	}
 	defer db.Close()
 
-	const selectStmt string = `
-	SELECT
-	rowid,
-	name,
-	location
-	FROM events WHERE rowid = ?
-	`
-
-	stmt, err := db.Prepare(selectStmt)
+	event, err := selectEventByIdFromDB(db, id)
 	if err != nil {
 		return err
 	}
 
-	var event models.Event
-	err = stmt.QueryRow(id).Scan(&event.ID, &event.Name, &event.Location)
-	if err != nil {
-		return err
-	}
-
-	const updateStmt string = `
-	UPDATE events SET
-	name = ?,
-	location = ?
-	WHERE rowid = ?
-	`
-
-	stmt, err = db.Prepare(updateStmt)
-	if err != nil {
-		return err
-	}
-
-	if len(modifiedEvent.Name) == 0 {
-		modifiedEvent.Name = event.Name
-	}
-	if len(modifiedEvent.Location) == 0 {
-		modifiedEvent.Location = event.Location
-	}
-
-	_, err = stmt.Exec(modifiedEvent.Name, modifiedEvent.Location, modifiedEvent.ID)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return updateEventInDB(db, event, modifiedEvent)
 }
 
 func DeleteEvent(id string) error {
@@ -184,19 +81,5 @@ func DeleteEvent(id string) error {
 	}
 	defer db.Close()
 
-	const deleteStmt string = `
-	DELETE FROM events WHERE rowid = ?
-	`
-
-	stmt, err := db.Prepare(deleteStmt)
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.Exec(id)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return deleteEventFromDB(db, id)
 }
