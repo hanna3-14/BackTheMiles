@@ -158,6 +158,74 @@ func GoalHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func EventsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		events, err := data.GetEvents()
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = helpers.WriteJSON(w, http.StatusOK, events)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodPost {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			ServerError(w, err)
+		}
+		var event models.Event
+		err = json.Unmarshal(body, &event)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = data.PostEvent(event)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else {
+		NotFoundHandler(w, r)
+	}
+}
+
+func EventHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		id := mux.Vars(r)["id"]
+		event, err := data.GetEventById(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = helpers.WriteJSON(w, http.StatusOK, event)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodPatch {
+		id := mux.Vars(r)["id"]
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			ServerError(w, err)
+		}
+		var event models.Event
+		err = json.Unmarshal(body, &event)
+		if err != nil {
+			ServerError(w, err)
+		}
+		event.ID, err = strconv.Atoi(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = data.PatchEvent(id, event)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodDelete {
+		id := mux.Vars(r)["id"]
+		err := data.DeleteEvent(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+	}
+}
+
 func HandleCacheControl(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		headers := rw.Header()
