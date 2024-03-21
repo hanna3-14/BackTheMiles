@@ -9,6 +9,7 @@ import (
 const selectResults string = `
 	SELECT
 	rowid,
+	event_id,
 	date,
 	distance,
 	time_gross_hours,
@@ -32,6 +33,7 @@ func createResultsTable(db *sql.DB) error {
 
 	const createStmt string = `
 	CREATE TABLE IF NOT EXISTS results (
+		event_id INT,
 		date TEXT,
 		distance TEXT,
 		time_gross_hours INT,
@@ -65,7 +67,8 @@ func selectAllResultsFromDB(db *sql.DB) ([]models.Result, error) {
 	for response.Next() {
 		var result models.Result
 		err = response.Scan(
-			&result.ID,
+			&result.ResultID,
+			&result.EventID,
 			&result.Date,
 			&result.Distance,
 			&result.TimeGross.Hours,
@@ -100,7 +103,8 @@ func selectResultByIdFromDB(db *sql.DB, id string) (models.Result, error) {
 
 	var result models.Result
 	err = stmt.QueryRow(id).Scan(
-		&result.ID,
+		&result.ResultID,
+		&result.EventID,
 		&result.Date,
 		&result.Distance,
 		&result.TimeGross.Hours,
@@ -128,6 +132,7 @@ func insertResultIntoDB(db *sql.DB, result models.Result) error {
 
 	const insert string = `
 	INSERT INTO results (
+		event_id,
 		date,
 		distance,
 		time_gross_hours,
@@ -144,7 +149,7 @@ func insertResultIntoDB(db *sql.DB, result models.Result) error {
 		finisher_total,
 		finisher_category,
 		finisher_agegroup
-	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 	`
 
 	stmt, err := db.Prepare(insert)
@@ -152,6 +157,7 @@ func insertResultIntoDB(db *sql.DB, result models.Result) error {
 		return err
 	}
 	_, err = stmt.Exec(
+		result.EventID,
 		result.Date,
 		result.Distance,
 		result.TimeGross.Hours,
@@ -172,10 +178,11 @@ func insertResultIntoDB(db *sql.DB, result models.Result) error {
 	return err
 }
 
-func updateResultInDB(db *sql.DB, result models.Result, modifiedResult models.Result) error {
+func updateResultInDB(db *sql.DB, storedResult models.Result, modifiedResult models.Result) error {
 
 	const update string = `
 	UPDATE results SET
+	event_id = ?,
 	date = ?,
 	distance = ?,
 	time_gross_hours = ?,
@@ -201,56 +208,62 @@ func updateResultInDB(db *sql.DB, result models.Result, modifiedResult models.Re
 	}
 
 	// keep the original value if the modified value is empty
+	if modifiedResult.EventID == 0 {
+		modifiedResult.EventID = storedResult.Finisher.Total
+	} else {
+		updateEventResultByResultID(db, storedResult.ResultID, modifiedResult.EventID)
+	}
 	if len(modifiedResult.Date) == 0 {
-		modifiedResult.Date = result.Date
+		modifiedResult.Date = storedResult.Date
 	}
 	if len(modifiedResult.Distance) == 0 {
-		modifiedResult.Distance = result.Distance
+		modifiedResult.Distance = storedResult.Distance
 	}
 	if modifiedResult.TimeGross.Hours == 0 {
-		modifiedResult.TimeGross.Hours = result.TimeGross.Hours
+		modifiedResult.TimeGross.Hours = storedResult.TimeGross.Hours
 	}
 	if modifiedResult.TimeGross.Minutes == 0 {
-		modifiedResult.TimeGross.Minutes = result.TimeGross.Minutes
+		modifiedResult.TimeGross.Minutes = storedResult.TimeGross.Minutes
 	}
 	if modifiedResult.TimeGross.Seconds == 0 {
-		modifiedResult.TimeGross.Seconds = result.TimeGross.Seconds
+		modifiedResult.TimeGross.Seconds = storedResult.TimeGross.Seconds
 	}
 	if modifiedResult.TimeNet.Hours == 0 {
-		modifiedResult.TimeNet.Hours = result.TimeNet.Hours
+		modifiedResult.TimeNet.Hours = storedResult.TimeNet.Hours
 	}
 	if modifiedResult.TimeNet.Minutes == 0 {
-		modifiedResult.TimeNet.Minutes = result.TimeNet.Minutes
+		modifiedResult.TimeNet.Minutes = storedResult.TimeNet.Minutes
 	}
 	if modifiedResult.TimeNet.Seconds == 0 {
-		modifiedResult.TimeNet.Seconds = result.TimeNet.Seconds
+		modifiedResult.TimeNet.Seconds = storedResult.TimeNet.Seconds
 	}
 	if len(modifiedResult.Category) == 0 {
-		modifiedResult.Category = result.Category
+		modifiedResult.Category = storedResult.Category
 	}
 	if len(modifiedResult.Agegroup) == 0 {
-		modifiedResult.Agegroup = result.Agegroup
+		modifiedResult.Agegroup = storedResult.Agegroup
 	}
 	if modifiedResult.Place.Total == 0 {
-		modifiedResult.Place.Total = result.Place.Total
+		modifiedResult.Place.Total = storedResult.Place.Total
 	}
 	if modifiedResult.Place.Category == 0 {
-		modifiedResult.Place.Category = result.Place.Category
+		modifiedResult.Place.Category = storedResult.Place.Category
 	}
 	if modifiedResult.Place.Agegroup == 0 {
-		modifiedResult.Place.Agegroup = result.Place.Agegroup
+		modifiedResult.Place.Agegroup = storedResult.Place.Agegroup
 	}
 	if modifiedResult.Finisher.Total == 0 {
-		modifiedResult.Finisher.Total = result.Finisher.Total
+		modifiedResult.Finisher.Total = storedResult.Finisher.Total
 	}
 	if modifiedResult.Finisher.Category == 0 {
-		modifiedResult.Finisher.Category = result.Finisher.Category
+		modifiedResult.Finisher.Category = storedResult.Finisher.Category
 	}
 	if modifiedResult.Finisher.Agegroup == 0 {
-		modifiedResult.Finisher.Agegroup = result.Finisher.Agegroup
+		modifiedResult.Finisher.Agegroup = storedResult.Finisher.Agegroup
 	}
 
 	_, err = stmt.Exec(
+		modifiedResult.EventID,
 		modifiedResult.Date,
 		modifiedResult.Distance,
 		modifiedResult.TimeGross.Hours,
@@ -267,7 +280,7 @@ func updateResultInDB(db *sql.DB, result models.Result, modifiedResult models.Re
 		modifiedResult.Finisher.Total,
 		modifiedResult.Finisher.Category,
 		modifiedResult.Finisher.Agegroup,
-		modifiedResult.ID,
+		modifiedResult.ResultID,
 	)
 	return err
 }

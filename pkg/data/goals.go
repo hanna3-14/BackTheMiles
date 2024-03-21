@@ -7,13 +7,11 @@ import (
 	"github.com/hanna3-14/BackTheMiles/pkg/models"
 )
 
-const goalsFile = "/goals.db"
-
 func GetGoals() ([]models.Goal, error) {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+goalsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return []models.Goal{}, err
 	}
@@ -26,7 +24,7 @@ func GetGoalById(id string) (models.Goal, error) {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+goalsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return models.Goal{}, err
 	}
@@ -39,7 +37,7 @@ func PostGoal(goal models.Goal) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+goalsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return err
 	}
@@ -57,7 +55,7 @@ func PatchGoal(id string, modifiedGoal models.Goal) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+goalsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return err
 	}
@@ -75,7 +73,7 @@ func DeleteGoal(id string) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+goalsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return err
 	}

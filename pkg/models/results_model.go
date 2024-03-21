@@ -1,7 +1,8 @@
 package models
 
 type Result struct {
-	ID        int             `json:"id"`
+	ResultID  int             `json:"resultId"`
+	EventID   int             `json:"eventId"`
 	Date      string          `json:"date"`
 	Distance  string          `json:"distance"`
 	TimeGross RaceTime        `json:"timeGross"`

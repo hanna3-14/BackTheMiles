@@ -9,13 +9,13 @@ import (
 	"github.com/hanna3-14/BackTheMiles/pkg/models"
 )
 
-const resultsFile = "/results.db"
+const databaseFile = "/marathon.db"
 
 func GetResults() ([]models.Result, error) {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+resultsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return []models.Result{}, err
 	}
@@ -28,7 +28,7 @@ func GetResultById(id string) (models.Result, error) {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+resultsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return models.Result{}, err
 	}
@@ -41,47 +41,64 @@ func PostResult(result models.Result) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+resultsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
+	// insert result into results table
 	err = createResultsTable(db)
 	if err != nil {
 		return err
 	}
 
-	return insertResultIntoDB(db, result)
+	err = insertResultIntoDB(db, result)
+	if err != nil {
+		return err
+	}
+
+	// insert eventResults into the according db table
+	err = createEventResultsTable(db)
+	if err != nil {
+		return err
+	}
+
+	return insertEventResultIntoDB(db, result.EventID)
 }
 
 func PatchResult(id string, modifiedResult models.Result) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+resultsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	result, err := selectResultByIdFromDB(db, id)
+	storedResult, err := selectResultByIdFromDB(db, id)
 	if err != nil {
 		return err
 	}
 
-	return updateResultInDB(db, result, modifiedResult)
+	return updateResultInDB(db, storedResult, modifiedResult)
 }
 
 func DeleteResult(id string) error {
 
 	path := helpers.SafeGetEnv("PATH_TO_VOLUME")
 
-	db, err := sql.Open("sqlite3", path+resultsFile)
+	db, err := sql.Open("sqlite3", path+databaseFile)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
+
+	err = deleteEventResultByResultID(db, id)
+	if err != nil {
+		return err
+	}
 
 	return deleteResultFromDB(db, id)
 }

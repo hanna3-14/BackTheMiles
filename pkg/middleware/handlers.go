@@ -73,7 +73,7 @@ func ResultHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		result.ID, err = strconv.Atoi(id)
+		result.ResultID, err = strconv.Atoi(id)
 		if err != nil {
 			ServerError(w, err)
 		}
