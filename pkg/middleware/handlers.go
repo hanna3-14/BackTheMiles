@@ -226,6 +226,74 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func DistancesHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		distances, err := data.GetDistances()
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = helpers.WriteJSON(w, http.StatusOK, distances)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodPost {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			ServerError(w, err)
+		}
+		var distance models.Distance
+		err = json.Unmarshal(body, &distance)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = data.PostDistance(distance)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else {
+		NotFoundHandler(w, r)
+	}
+}
+
+func DistanceHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		id := mux.Vars(r)["id"]
+		distance, err := data.GetDistanceById(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = helpers.WriteJSON(w, http.StatusOK, distance)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodPatch {
+		id := mux.Vars(r)["id"]
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			ServerError(w, err)
+		}
+		var distance models.Distance
+		err = json.Unmarshal(body, &distance)
+		if err != nil {
+			ServerError(w, err)
+		}
+		distance.ID, err = strconv.Atoi(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = data.PatchDistance(id, distance)
+		if err != nil {
+			ServerError(w, err)
+		}
+	} else if r.Method == http.MethodDelete {
+		id := mux.Vars(r)["id"]
+		err := data.DeleteDistance(id)
+		if err != nil {
+			ServerError(w, err)
+		}
+	}
+}
+
 func HandleCacheControl(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		headers := rw.Header()

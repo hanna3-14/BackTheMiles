@@ -18,6 +18,8 @@ func Router(audience, domain string) http.Handler {
 	router.Handle("/api/data/goal/{id:[0-9]+}", middleware.ValidateJWT(audience, domain)(http.HandlerFunc(middleware.GoalHandler)))
 	router.Handle("/api/data/events", middleware.ValidateJWT(audience, domain)(http.HandlerFunc(middleware.EventsHandler)))
 	router.Handle("/api/data/event/{id:[0-9]+}", middleware.ValidateJWT(audience, domain)(http.HandlerFunc(middleware.EventHandler)))
+	router.Handle("/api/data/distances", middleware.ValidateJWT(audience, domain)(http.HandlerFunc(middleware.DistancesHandler)))
+	router.Handle("/api/data/distance/{id:[0-9]+}", middleware.ValidateJWT(audience, domain)(http.HandlerFunc(middleware.DistanceHandler)))
 
 	return middleware.HandleCacheControl(router)
 }
