@@ -11,7 +11,7 @@ const selectResults string = `
 	rowid,
 	event_id,
 	date,
-	distance,
+	distance_id,
 	time_gross_hours,
 	time_gross_minutes,
 	time_gross_seconds,
@@ -35,7 +35,7 @@ func createResultsTable(db *sql.DB) error {
 	CREATE TABLE IF NOT EXISTS results (
 		event_id INT,
 		date TEXT,
-		distance TEXT,
+		distance_id INT,
 		time_gross_hours INT,
 		time_gross_minutes INT,
 		time_gross_seconds INT,
@@ -70,7 +70,7 @@ func selectAllResultsFromDB(db *sql.DB) ([]models.Result, error) {
 			&result.ResultID,
 			&result.EventID,
 			&result.Date,
-			&result.Distance,
+			&result.DistanceID,
 			&result.TimeGross.Hours,
 			&result.TimeGross.Minutes,
 			&result.TimeGross.Seconds,
@@ -106,7 +106,7 @@ func selectResultByIdFromDB(db *sql.DB, id string) (models.Result, error) {
 		&result.ResultID,
 		&result.EventID,
 		&result.Date,
-		&result.Distance,
+		&result.DistanceID,
 		&result.TimeGross.Hours,
 		&result.TimeGross.Minutes,
 		&result.TimeGross.Seconds,
@@ -134,7 +134,7 @@ func insertResultIntoDB(db *sql.DB, result models.Result) error {
 	INSERT INTO results (
 		event_id,
 		date,
-		distance,
+		distance_id,
 		time_gross_hours,
 		time_gross_minutes,
 		time_gross_seconds,
@@ -159,7 +159,7 @@ func insertResultIntoDB(db *sql.DB, result models.Result) error {
 	_, err = stmt.Exec(
 		result.EventID,
 		result.Date,
-		result.Distance,
+		result.DistanceID,
 		result.TimeGross.Hours,
 		result.TimeGross.Minutes,
 		result.TimeGross.Seconds,
@@ -184,7 +184,7 @@ func updateResultInDB(db *sql.DB, storedResult models.Result, modifiedResult mod
 	UPDATE results SET
 	event_id = ?,
 	date = ?,
-	distance = ?,
+	distance_id = ?,
 	time_gross_hours = ?,
 	time_gross_minutes = ?,
 	time_gross_seconds = ?,
@@ -216,8 +216,8 @@ func updateResultInDB(db *sql.DB, storedResult models.Result, modifiedResult mod
 	if len(modifiedResult.Date) == 0 {
 		modifiedResult.Date = storedResult.Date
 	}
-	if len(modifiedResult.Distance) == 0 {
-		modifiedResult.Distance = storedResult.Distance
+	if modifiedResult.DistanceID == 0 {
+		modifiedResult.DistanceID = storedResult.DistanceID
 	}
 	if modifiedResult.TimeGross.Hours == 0 {
 		modifiedResult.TimeGross.Hours = storedResult.TimeGross.Hours
@@ -265,7 +265,7 @@ func updateResultInDB(db *sql.DB, storedResult models.Result, modifiedResult mod
 	_, err = stmt.Exec(
 		modifiedResult.EventID,
 		modifiedResult.Date,
-		modifiedResult.Distance,
+		modifiedResult.DistanceID,
 		modifiedResult.TimeGross.Hours,
 		modifiedResult.TimeGross.Minutes,
 		modifiedResult.TimeGross.Seconds,
