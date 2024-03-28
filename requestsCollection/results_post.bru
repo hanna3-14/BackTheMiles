@@ -16,17 +16,30 @@ auth:bearer {
 
 body:json {
   {
-    "name": "Freiburg-Marathon",
+    "date": "2023-03-26",
+    "eventId": 4,
     "distance": "M",
-    "timeGross": "5:45:57",
-    "timeNet": "5:29:09",
+    "timeGross": {
+      "hours": 5,
+      "minutes": 45,
+      "seconds": 57
+    },
+    "timeNet": {
+      "hours": 5,
+      "minutes": 29,
+      "seconds": 9
+    },
     "category": "W",
     "agegroup": "W",
-    "placeTotal": 916,
-    "placeCategory": 164,
-    "placeAgegroup": 60,
-    "finisherTotal": 930,
-    "finisherCategory": 166,
-    "finisherAgegroup": 62
+    "place": {
+      "total": 916,
+      "category": 164,
+      "agegroup": 60
+    },
+    "finisher": {
+      "total": 930,
+      "category": 166,
+      "agegroup": 62
+    }
   }
 }

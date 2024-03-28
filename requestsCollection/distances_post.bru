@@ -1,0 +1,22 @@
+meta {
+  name: distances post
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{backend_server_url}}/api/data/distances
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+body:json {
+  {
+    "name": "Marathon",
+    "distanceInMeters": 42195
+  }
+}
