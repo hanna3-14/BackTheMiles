@@ -21,7 +21,16 @@ func GetResults() ([]models.Result, error) {
 	}
 	defer db.Close()
 
-	return selectAllResultsFromDB(db)
+	results, err := selectAllResultsFromDB(db)
+	if err != nil {
+		return []models.Result{}, err
+	}
+
+	for i := range results {
+		results[i] = calculateRelativePlaces(results[i])
+	}
+
+	return results, nil
 }
 
 func GetResultById(id string) (models.Result, error) {
@@ -34,7 +43,13 @@ func GetResultById(id string) (models.Result, error) {
 	}
 	defer db.Close()
 
-	return selectResultByIdFromDB(db, id)
+	result, err := selectResultByIdFromDB(db, id)
+	if err != nil {
+		return models.Result{}, err
+	}
+
+	result = calculateRelativePlaces(result)
+	return result, nil
 }
 
 func PostResult(result models.Result) error {
