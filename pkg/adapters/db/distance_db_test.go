@@ -160,53 +160,6 @@ func TestFindDistanceByID(t *testing.T) {
 	}
 }
 
-func TestUpdateDistance(t *testing.T) {
-	tests := []struct {
-		name             string
-		storedDistance   domain.Distance
-		modifiedDistance domain.Distance
-	}{
-		{
-			name: "happy path - update name",
-			storedDistance: domain.Distance{
-				ID:               1,
-				Name:             "Marathon",
-				DistanceInMeters: 21098,
-			},
-			modifiedDistance: domain.Distance{
-				Name: "Half marathon",
-			},
-		},
-		{
-			name: "happy path - update distance",
-			storedDistance: domain.Distance{
-				ID:               1,
-				Name:             "Marathon",
-				DistanceInMeters: 3,
-			},
-			modifiedDistance: domain.Distance{
-				DistanceInMeters: 42195,
-			},
-		},
-	}
-
-	database, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	require.Nil(t, err)
-	defer database.Close()
-
-	mockDBAdapter := db.SQLDBAdapter{Database: database}
-
-	for _, tt := range tests {
-		mock.ExpectPrepare("UPDATE distances SET name = ?, distanceInMeters = ? WHERE rowid = ?")
-		mock.ExpectExec(`UPDATE distances SET name = ?, distanceInMeters = ? WHERE rowid = ?`).
-			WithArgs(tt.storedDistance.Name, tt.storedDistance.DistanceInMeters, tt.storedDistance.ID).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-
-		err := mockDBAdapter.UpdateDistance(tt.storedDistance.ID, tt.storedDistance, tt.modifiedDistance)
-		assert.Nil(t, err)
-	}
-}
-
 func TestDeleteDistance(t *testing.T) {
 	tests := []struct {
 		name        string

@@ -16,6 +16,5 @@ func NewSQLDBAdapter(databaseFile string) (*SQLDBAdapter, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
 	return &SQLDBAdapter{Database: db}, nil
 }

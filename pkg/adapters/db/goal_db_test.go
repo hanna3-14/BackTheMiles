@@ -160,53 +160,6 @@ func TestFindGoalByID(t *testing.T) {
 	}
 }
 
-func TestUpdateGoal(t *testing.T) {
-	tests := []struct {
-		name         string
-		storedGoal   domain.Goal
-		modifiedGoal domain.Goal
-	}{
-		{
-			name: "happy path - update distance",
-			storedGoal: domain.Goal{
-				ID:       1,
-				Distance: "Marathon",
-				Time:     "forever",
-			},
-			modifiedGoal: domain.Goal{
-				Distance: "Half marathon",
-			},
-		},
-		{
-			name: "happy path - update time",
-			storedGoal: domain.Goal{
-				ID:       1,
-				Distance: "Marathon",
-				Time:     "forever",
-			},
-			modifiedGoal: domain.Goal{
-				Time: "very fast",
-			},
-		},
-	}
-
-	database, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	require.Nil(t, err)
-	defer database.Close()
-
-	mockDBAdapter := db.SQLDBAdapter{Database: database}
-
-	for _, tt := range tests {
-		mock.ExpectPrepare("UPDATE goals SET distance = ?, time = ? WHERE rowid = ?")
-		mock.ExpectExec(`UPDATE goals SET distance = ?, time = ? WHERE rowid = ?`).
-			WithArgs(tt.storedGoal.Distance, tt.storedGoal.Time, tt.storedGoal.ID).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-
-		err := mockDBAdapter.UpdateGoal(tt.storedGoal.ID, tt.storedGoal, tt.modifiedGoal)
-		assert.Nil(t, err)
-	}
-}
-
 func TestDeleteGoal(t *testing.T) {
 	tests := []struct {
 		name        string

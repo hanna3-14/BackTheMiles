@@ -78,7 +78,7 @@ func (repo *SQLDBAdapter) UpdateGoal(id int, goal, modifiedGoal domain.Goal) err
 		modifiedGoal.Time = goal.Time
 	}
 
-	_, err = stmt.Exec(goal.Distance, goal.Time, goal.ID)
+	_, err = stmt.Exec(modifiedGoal.Distance, modifiedGoal.Time, modifiedGoal.ID)
 	return err
 }
 

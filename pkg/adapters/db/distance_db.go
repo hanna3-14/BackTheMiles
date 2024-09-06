@@ -78,7 +78,7 @@ func (repo *SQLDBAdapter) UpdateDistance(id int, distance, modifiedDistance doma
 		modifiedDistance.DistanceInMeters = distance.DistanceInMeters
 	}
 
-	_, err = stmt.Exec(distance.Name, distance.DistanceInMeters, distance.ID)
+	_, err = stmt.Exec(modifiedDistance.Name, modifiedDistance.DistanceInMeters, distance.ID)
 	return err
 }
 
