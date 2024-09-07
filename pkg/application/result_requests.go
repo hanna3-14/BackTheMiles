@@ -19,7 +19,7 @@ func (r *ResultRequestService) GetResults() ([]domain.Result, error) {
 		return []domain.Result{}, err
 	}
 	for i := range results {
-		results[i] = calculateRelativePlaces(results[i])
+		results[i].CalculateRelativePlaces()
 	}
 	return results, nil
 }
@@ -29,7 +29,7 @@ func (r *ResultRequestService) GetResult(id int) (domain.Result, error) {
 	if err != nil {
 		return domain.Result{}, err
 	}
-	result = calculateRelativePlaces(result)
+	result.CalculateRelativePlaces()
 	return result, nil
 }
 

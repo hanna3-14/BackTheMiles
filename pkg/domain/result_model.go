@@ -25,3 +25,9 @@ type CategoryNumbers struct {
 	Category int `json:"category"`
 	Agegroup int `json:"agegroup"`
 }
+
+func (result *Result) CalculateRelativePlaces() {
+	result.RelativePlaces.Total = (result.Place.Total * 100 / result.Finisher.Total)
+	result.RelativePlaces.Category = (result.Place.Category * 100 / result.Finisher.Category)
+	result.RelativePlaces.Agegroup = (result.Place.Agegroup * 100 / result.Finisher.Agegroup)
+}
