@@ -8,9 +8,9 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/hanna3-14/BackTheMiles/pkg/data"
+	"github.com/hanna3-14/BackTheMiles/pkg/application"
+	"github.com/hanna3-14/BackTheMiles/pkg/domain"
 	"github.com/hanna3-14/BackTheMiles/pkg/helpers"
-	"github.com/hanna3-14/BackTheMiles/pkg/models"
 )
 
 const (
@@ -22,9 +22,29 @@ type ErrorMessage struct {
 	Message string `json:"message"`
 }
 
-func ResultsHandler(w http.ResponseWriter, r *http.Request) {
+type HTTPServer struct {
+	ResultRequestService   application.ResultRequestService
+	GoalRequestService     application.GoalRequestService
+	EventRequestService    application.EventRequestService
+	DistanceRequestService application.DistanceRequestService
+}
+
+func NewHTTPServer(
+	resultRequestService application.ResultRequestService,
+	goalRequestService application.GoalRequestService,
+	eventRequestService application.EventRequestService,
+	distanceRequestService application.DistanceRequestService) (*HTTPServer, error) {
+	return &HTTPServer{
+		ResultRequestService:   resultRequestService,
+		GoalRequestService:     goalRequestService,
+		EventRequestService:    eventRequestService,
+		DistanceRequestService: distanceRequestService,
+	}, nil
+}
+
+func (s *HTTPServer) ResultsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		results, err := data.GetResults()
+		results, err := s.ResultRequestService.GetResults()
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -37,12 +57,12 @@ func ResultsHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		var result models.Result
+		var result domain.Result
 		err = json.Unmarshal(body, &result)
 		if err != nil {
 			ServerError(w, err)
 		}
-		err = data.PostResult(result)
+		err = s.ResultRequestService.PostResult(result)
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -51,10 +71,13 @@ func ResultsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ResultHandler(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) ResultHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		id := mux.Vars(r)["id"]
-		result, err := data.GetResultById(id)
+		id, err := strconv.Atoi(mux.Vars(r)["id"])
+		if err != nil {
+			ServerError(w, err)
+		}
+		result, err := s.ResultRequestService.GetResult(id)
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -68,7 +91,7 @@ func ResultHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		var result models.Result
+		var result domain.Result
 		err = json.Unmarshal(body, &result)
 		if err != nil {
 			ServerError(w, err)
@@ -77,22 +100,25 @@ func ResultHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		err = data.PatchResult(id, result)
+		err = s.ResultRequestService.PatchResult(result.ResultID, result)
 		if err != nil {
 			ServerError(w, err)
 		}
 	} else if r.Method == http.MethodDelete {
-		id := mux.Vars(r)["id"]
-		err := data.DeleteResult(id)
+		id, err := strconv.Atoi(mux.Vars(r)["id"])
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = s.ResultRequestService.DeleteResult(id)
 		if err != nil {
 			ServerError(w, err)
 		}
 	}
 }
 
-func GoalsHandler(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) GoalsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		goals, err := data.GetGoals()
+		goals, err := s.GoalRequestService.GetGoals()
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -105,12 +131,12 @@ func GoalsHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		var goal models.Goal
+		var goal domain.Goal
 		err = json.Unmarshal(body, &goal)
 		if err != nil {
 			ServerError(w, err)
 		}
-		err = data.PostGoal(goal)
+		err = s.GoalRequestService.PostGoal(goal)
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -119,10 +145,13 @@ func GoalsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GoalHandler(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) GoalHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		id := mux.Vars(r)["id"]
-		goal, err := data.GetGoalById(id)
+		id, err := strconv.Atoi(mux.Vars(r)["id"])
+		if err != nil {
+			ServerError(w, err)
+		}
+		goal, err := s.GoalRequestService.GetGoal(id)
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -136,7 +165,7 @@ func GoalHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		var goal models.Goal
+		var goal domain.Goal
 		err = json.Unmarshal(body, &goal)
 		if err != nil {
 			ServerError(w, err)
@@ -145,22 +174,25 @@ func GoalHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		err = data.PatchGoal(id, goal)
+		err = s.GoalRequestService.PatchGoal(goal.ID, goal)
 		if err != nil {
 			ServerError(w, err)
 		}
 	} else if r.Method == http.MethodDelete {
-		id := mux.Vars(r)["id"]
-		err := data.DeleteGoal(id)
+		id, err := strconv.Atoi(mux.Vars(r)["id"])
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = s.GoalRequestService.DeleteGoal(id)
 		if err != nil {
 			ServerError(w, err)
 		}
 	}
 }
 
-func EventsHandler(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) EventsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		events, err := data.GetEvents()
+		events, err := s.EventRequestService.GetEvents()
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -173,12 +205,12 @@ func EventsHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		var event models.Event
+		var event domain.Event
 		err = json.Unmarshal(body, &event)
 		if err != nil {
 			ServerError(w, err)
 		}
-		err = data.PostEvent(event)
+		err = s.EventRequestService.PostEvent(event)
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -187,10 +219,13 @@ func EventsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func EventHandler(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) EventHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		id := mux.Vars(r)["id"]
-		event, err := data.GetEventById(id)
+		id, err := strconv.Atoi(mux.Vars(r)["id"])
+		if err != nil {
+			ServerError(w, err)
+		}
+		event, err := s.EventRequestService.GetEvent(id)
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -204,7 +239,7 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		var event models.Event
+		var event domain.Event
 		err = json.Unmarshal(body, &event)
 		if err != nil {
 			ServerError(w, err)
@@ -213,22 +248,25 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		err = data.PatchEvent(id, event)
+		err = s.EventRequestService.PatchEvent(event.ID, event)
 		if err != nil {
 			ServerError(w, err)
 		}
 	} else if r.Method == http.MethodDelete {
-		id := mux.Vars(r)["id"]
-		err := data.DeleteEvent(id)
+		id, err := strconv.Atoi(mux.Vars(r)["id"])
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = s.EventRequestService.DeleteEvent(id)
 		if err != nil {
 			ServerError(w, err)
 		}
 	}
 }
 
-func DistancesHandler(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) DistancesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		distances, err := data.GetDistances()
+		distances, err := s.DistanceRequestService.GetDistances()
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -241,12 +279,12 @@ func DistancesHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		var distance models.Distance
+		var distance domain.Distance
 		err = json.Unmarshal(body, &distance)
 		if err != nil {
 			ServerError(w, err)
 		}
-		err = data.PostDistance(distance)
+		err = s.DistanceRequestService.PostDistance(distance)
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -255,10 +293,13 @@ func DistancesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func DistanceHandler(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) DistanceHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		id := mux.Vars(r)["id"]
-		distance, err := data.GetDistanceById(id)
+		id, err := strconv.Atoi(mux.Vars(r)["id"])
+		if err != nil {
+			ServerError(w, err)
+		}
+		distance, err := s.DistanceRequestService.GetDistance(id)
 		if err != nil {
 			ServerError(w, err)
 		}
@@ -272,7 +313,7 @@ func DistanceHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		var distance models.Distance
+		var distance domain.Distance
 		err = json.Unmarshal(body, &distance)
 		if err != nil {
 			ServerError(w, err)
@@ -281,13 +322,16 @@ func DistanceHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ServerError(w, err)
 		}
-		err = data.PatchDistance(id, distance)
+		err = s.DistanceRequestService.PatchDistance(distance.ID, distance)
 		if err != nil {
 			ServerError(w, err)
 		}
 	} else if r.Method == http.MethodDelete {
-		id := mux.Vars(r)["id"]
-		err := data.DeleteDistance(id)
+		id, err := strconv.Atoi(mux.Vars(r)["id"])
+		if err != nil {
+			ServerError(w, err)
+		}
+		err = s.DistanceRequestService.DeleteDistance(id)
 		if err != nil {
 			ServerError(w, err)
 		}
